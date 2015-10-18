@@ -1,0 +1,84 @@
+﻿@model IEnumerable<ElevenNote.Models.NoteListItemViewModel>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>My Notes</h2>
+
+<p class="text-right">
+    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-default" })
+</p>
+
+@if (TempData.ContainsKey("Result"))
+{
+    <div class="alert alert-info alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        @TempData["Result"]
+    </div>
+}
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DateCreated)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DateModified)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.IsFavorite)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model.OrderByDescending(i => i.IsFavorite).ThenBy(i => i.DateModified)) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DateCreated)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DateModified)
+        </td>
+        <td>
+            @Html.EditorFor(modelItem => item.IsFavorite, null, String.Format("Item_{0}", item.Id))
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+        </td>
+    </tr>
+}
+
+</table>
+
+@section scripts {
+    <script language="javascript" type="text/javascript">
+        function toggleFavorite(noteId, checked) {
+            $.ajax({
+                method: checked ? "PUT" : "DELETE",
+                url: "/api/favorites/" + noteId.toString(),
+                data: null
+            }).done(function (r) { alert("Favorite saved!"); });
+        }
+
+        $(document).ready(function () {
+            $(":checkbox").change(
+                function (e) {
+                    var cb = $(this);
+                    var itemId = parseInt(/Item_(\d+)/.exec(cb[0].id)[1], 10);
+                    var checked = cb.is(':checked');
+                    toggleFavorite(itemId, checked)
+                });
+        });
+    </script>
+}

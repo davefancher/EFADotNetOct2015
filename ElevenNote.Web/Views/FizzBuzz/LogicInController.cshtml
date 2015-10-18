@@ -1,0 +1,12 @@
+﻿@model IEnumerable<string>
+
+@{
+    ViewBag.Title = "LogicInController";
+}
+
+<h2>@ViewBag.Message</h2>
+
+@Html.ListBox(
+    "selection",
+    Model.Select(n => new SelectListItem { Text = n }),
+    new { size = 10 })
